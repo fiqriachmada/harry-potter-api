@@ -5,7 +5,6 @@ dotenv.config();
 
 const connection = await mysql.createConnection(process.env.DATABASE_URL);
 
-
 const app = express();
 
 app.get("/", (req, res) => {
@@ -18,11 +17,25 @@ app.get("/characters", async (req, res) => {
   res.send(rows);
 });
 
+app.get("/characters/:id", async (req, res) => {
+  const { id } = req.params;
+  const query = "SELECT * FROM hp_character WHERE hp_character.id=?";
+  const [rows] = await connection.query(query, [id]);
+
+  if (!rows[0]) {
+    res.json({ msg: "Couldn't find that character" });
+  }
+  res.json(rows[0]);
+
+
+});
+
 app.get("/wands", async (req, res) => {
   const query = "SELECT * FROM wand";
   const [rows] = await connection.query(query);
   res.send(rows);
 });
+
 
 app.listen(3000, () => {
   console.log("App is Listening...and the server is up\n");
