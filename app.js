@@ -4,6 +4,7 @@ import mysql from "mysql2/promise";
 dotenv.config();
 
 const connection = await mysql.createConnection(process.env.DATABASE_URL);
+console.log("The Database is connected to\n" + connection);
 
 const app = express();
 
