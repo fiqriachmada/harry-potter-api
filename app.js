@@ -5,6 +5,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import fs from "fs";
 import path from "path";
+// var CHARACTERS_JSON = path.join(__dirname, 'data/characters.json');
 
 
 dotenv.config();
@@ -28,9 +29,9 @@ let returnValue = {};
 app.get("/characters", async (req, res) => {
   const query = "SELECT * FROM hp_character";
   const [rows] = await connection.query(query);
-  console.log(rows)
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.json(rows)
+  console.log(rows)
 });
 
 app.get("/characters/:id", async (req, res) => {
@@ -41,12 +42,15 @@ app.get("/characters/:id", async (req, res) => {
   if (!rows[0]) {
     return res.json({ msg: "Couldn't find that character" });
   }
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.json(rows[0]);
+  console.log(rows[0])
 });
 
 app.get("/wands", async (req, res) => {
   const query = "SELECT * FROM wand";
   const [rows] = await connection.query(query);
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.send(rows);
 });
 
@@ -58,6 +62,7 @@ app.get("/wands/:id", async (req, res) => {
   if (!rows[0]) {
     return res.json({ msg: "Couldn't find that character" });
   }
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.json(rows[0]);
 });
 
