@@ -5,7 +5,6 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import fs from "fs";
 import path from "path";
-// var CHARACTERS_JSON = path.join(__dirname, 'data/characters.json');
 
 
 dotenv.config();
@@ -27,21 +26,11 @@ let status = 200;
 let returnValue = {};
 
 app.get("/characters", async (req, res) => {
-
-  try {
-    const query = "SELECT * FROM hp_character";
-    const [rows] = await connection.query(query);
-    returnValue.data = rows;
-    console.log(rows)
-    res.setHeader('Access-Control-Allow-Origin', '*');
-  } catch (error) {
-    console.log(error);
-    status = 500;
-    returnValue.msg = "Something went wrong";
-  } finally {
-    res.status(status).json(returnValue);
-    console.log(status);
-  }
+  const query = "SELECT * FROM hp_character";
+  const [rows] = await connection.query(query);
+  console.log(rows)
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.json(rows)
 });
 
 app.get("/characters/:id", async (req, res) => {
