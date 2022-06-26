@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 import mysql from 'mysql2/promise'
 import cors from 'cors'
 import bodyParser from 'body-parser'
-import fs from 'fs'
+import fs, { statSync } from 'fs'
 import path from 'path'
 // var CHARACTERS_JSON = path.join(__dirname, 'data/characters.json');
 
@@ -47,13 +47,23 @@ app.get('/characters/:id', async (req, res) => {
 })
 
 app.post('/characters/', async (req, res) => {
-  const data = {
-    ...req.body
+  const data = { ...req.body }
 
-  }
-  // product_price: req.body.product_price
   const query = 'INSERT INTO hp_character SET ?'
+
   const [rows] = await connection.query(query, data)
+
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.json(rows)
+  console.log(rows)
+})
+
+app.put('/characters/:id', async (req, res) => {
+  const data = { ...req.body }
+
+  const query = 'UPDATE hp_character SET ? WHERE id = ' + req.params.id
+
+  const [rows] = await connection.query(query, data, req.params.id)
 
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.json(rows)
@@ -87,4 +97,4 @@ app.listen(port, () => {
 
 // const listener = app.listen(process.env.PORT, function () {
 //   console.log('Your app is listening on port ' + listener.address().port)
-// })
+// })}
