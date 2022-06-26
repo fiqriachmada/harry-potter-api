@@ -3,9 +3,6 @@ import dotenv from 'dotenv'
 import mysql from 'mysql2/promise'
 import cors from 'cors'
 import bodyParser from 'body-parser'
-import fs, { statSync } from 'fs'
-import path from 'path'
-// var CHARACTERS_JSON = path.join(__dirname, 'data/characters.json');
 
 dotenv.config()
 
