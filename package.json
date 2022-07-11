@@ -14,9 +14,10 @@
     "dev": "nodemon app.js",
 "start": "nodemon app.js",
     "seed": "node seed/seed.js",
+
+  },
 "engines": {
     "node": "16.3"
-  },
   "type": "module",
   "keywords": [],
   "author": "",
