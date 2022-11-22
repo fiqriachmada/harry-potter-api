@@ -16,18 +16,18 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.get("/", (req, res) => {
-  res.json({ msg: "Hello World" });
+  res.json({ msg: "Harry Potter API" });
 });
 
 let status = 200;
 let returnValue = {};
 
 app.get("/characters", async (req, res) => {
-  const query = "SELECT * FROM hp_character";
+  const query = "SELECT * FROM hp_character ORDER BY id DESC";
   const [rows] = await connection.query(query);
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.json(rows);
-  console.log(rows);
+  // console.log(rows);
 });
 
 app.get("/characters/:id", async (req, res) => {
@@ -46,13 +46,18 @@ app.get("/characters/:id", async (req, res) => {
 app.post("/characters/", async (req, res) => {
   const data = { ...req.body };
 
-  const query = "INSERT INTO hp_character SET ?";
+  const query = `INSERT INTO hp_character SET ?`;
+  try {
+    const [rows] = await connection.query(query, data);
 
-  const [rows] = await connection.query(query, data);
-
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.json(rows);
-  console.log(rows);
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    // res.json(rows);
+    res.json(data);
+    console.log("Posted Data: " + JSON.stringify(data));
+  } catch (error) {
+    console.log(error.message);
+  }
+  // const query = "INSERT INTO hp_character SET ?"
 });
 
 app.put("/characters/:id", async (req, res) => {
@@ -63,8 +68,10 @@ app.put("/characters/:id", async (req, res) => {
   const [rows] = await connection.query(query, data, req.params.id);
 
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.json(rows);
-  console.log(rows);
+  res.json(data);
+  // res.json(rows);
+  console.log("Updated " + JSON.stringify(data));
+  console.log(data);
 });
 
 app.delete("/characters/:id", async (req, res) => {
@@ -75,8 +82,8 @@ app.delete("/characters/:id", async (req, res) => {
   const [rows] = await connection.query(query, data, [id], req.params.id);
 
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.json(rows[id]);
-  // console.log(rows)
+  res.json("Deleted" + rows);
+  // console.log('Deleted'+rows);
 });
 
 app.get("/wands", async (req, res) => {
@@ -98,11 +105,11 @@ app.get("/wands/:id", async (req, res) => {
   res.json(rows[0]);
 });
 
-const port = 3000;
+// const port = 3000;
 
-app.listen(port, () => {
-  console.log("App is Listening...and the server is up to port " + port);
-});
+// app.listen(port, () => {
+//   console.log("App is Listening...and the server is up to port " + port);
+// });
 
 const listener = app.listen(process.env.PORT, function () {
   console.log("Your app is listening on port " + listener.address().port);
