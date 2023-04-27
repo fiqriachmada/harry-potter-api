@@ -12,8 +12,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node app.js",
     "dev": "nodemon app.js",
+    "start": "nodemon app.js",
     "seed": "node seed/seed.js"
   },
   "engines": {
