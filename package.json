@@ -17,7 +17,7 @@
     "seed": "node seed/seed.js"
   },
   "engines": {
-    "node": "16.16.0"
+    "node": "18.0.0"
   },
   "type": "module",
   "keywords": [],
