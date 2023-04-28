@@ -23,7 +23,8 @@ let status = 200;
 let returnValue = {};
 
 app.get('/characters', async (req, res) => {
-  const query = 'SELECT * FROM hp_character ORDER BY id DESC';
+  const query = 'SELECT * FROM hp_character';
+  // ORDER BY id DESC
   const [rows] = await connection.query(query);
 
   const response = {
