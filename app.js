@@ -25,9 +25,35 @@ let returnValue = {};
 app.get('/characters', async (req, res) => {
   const query = 'SELECT * FROM hp_character ORDER BY id DESC';
   const [rows] = await connection.query(query);
+
+  const response = {
+    data: rows,
+    meta: {
+      include: [],
+      custom: {
+        isView: true,
+        isList: true,
+        isCreate: true,
+        isUpdate: true,
+        isDelete: true,
+      },
+      pagination: {
+        total: characters.length,
+        count: characters.length,
+        per_page: 10,
+        current_page: 1,
+        total_pages: Math.ceil(characters.length / 10),
+        links: {
+          next: `http://api.freshfactory.id//v1/products?page=2`,
+        },
+      },
+    },
+  };
+
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.json(rows);
-  console.log(rows);
+  // res.json(rows);
+  res.json(response);
+  // console.log(rows);
 });
 
 app.get('/characters/:id', async (req, res) => {
