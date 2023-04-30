@@ -3,8 +3,6 @@ import dotenv from 'dotenv'
 import mysql from 'mysql2/promise'
 import cors from 'cors'
 import bodyParser from 'body-parser'
-import pkg from 'lodash'
-const { sum } = pkg
 
 dotenv.config()
 
@@ -24,31 +22,6 @@ app.get('/', (req, res) => {
 let status = [{ success: 200 }, { failed: 400 }]
 let returnValue = {}
 
-// app.get('/characters', async (req, res) => {
-//   const itemsPerPage = 10
-//   const page = 1
-//   const query = `SELECT * FROM hp_character LIMIT ${itemsPerPage} `
-
-//   const [rows] = await connection.query(query)
-
-//   const response = {
-//     status: status.success,
-//     data: rows,
-//     meta: {
-//       pagination: {
-//         page: page,
-//         itemsPerPage: itemsPerPage,
-//         links: {
-//           next: `localhost:${port}/characters?page=${page + 1}`
-//         }
-//       }
-//     }
-//   }
-
-//   res.setHeader('Access-Control-Allow-Origin', '*')
-//   res.json(response)
-// })
-
 app.get('/characters', async (req, res) => {
   const itemsPerPage = 10
   const page = parseInt(req.query.page) || 1 // use query parameter or default to 1
@@ -58,14 +31,16 @@ app.get('/characters', async (req, res) => {
   const [rows] = await connection.query(query)
 
   const response = {
-    status: status.success,
+    status: res.statusCode,
     data: rows,
     meta: {
       pagination: {
         page: page,
         itemsPerPage: itemsPerPage,
         links: {
-          next: `https://api-harry-potter-app.cyclic.app/characters?page=${page + 1}`
+          next: `https://api-harry-potter-app.cyclic.app/characters?page=${
+            page + 1
+          }`
         }
       }
     }
@@ -73,8 +48,8 @@ app.get('/characters', async (req, res) => {
 
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.json(response)
+  // res.status(response.status).json(response)
 })
-
 
 app.get('/characters/:id', async (req, res) => {
   const { id } = req.params
