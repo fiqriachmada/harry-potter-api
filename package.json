@@ -14,7 +14,6 @@
   "scripts": {
     "dev": "nodemon app.js",
     "start": "node app.js",
-    "build": "yarn",
     "seed": "node seed/seed.js"
   },
   "engines": {
