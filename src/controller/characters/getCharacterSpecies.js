@@ -1,14 +1,12 @@
 import { Router } from 'express'
-import getConnection from '../../database/database.js'
+import { connection } from '../../apis/database.js'
 
-const getCharacterSpecies = Router()
-
-const connection = getConnection()
+export const getCharacterSpecies = Router()
 
 getCharacterSpecies.get('/', async (req, res) => {
   const query = `SELECT DISTINCT species FROM hp_character`
 
-  const [rows] = await (await connection).query(query)
+  const [rows] = await (await connection()).query(query)
 
   const response = {
     status: res.statusCode,

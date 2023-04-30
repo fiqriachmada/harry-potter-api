@@ -3,14 +3,16 @@ import dotenv from 'dotenv'
 import mysql from 'mysql2/promise'
 import cors from 'cors'
 import bodyParser from 'body-parser'
-import getConnection from './src/database/database.js'
-import characterController from './src/controller/characters/characterController.js'
 import getCharacterSpecies from './src/controller/characters/getCharacterSpecies.js'
 import getCharacterHouse from './src/controller/characters/getCharacterHouse.js'
+import { connection } from './src/apis/database.js'
+import getCharacterById from './src/controller/characters/getCharacterById.js'
+import getAllCharacter from './src/controller/characters/getAllCharacter.js'
+import putCharacterById from './src/controller/characters/putCharacterById.js'
+import postCharacter from './src/controller/characters/postCharacter.js'
+
 
 dotenv.config()
-
-const connection = getConnection()
 
 const app = express()
 app.use(cors())
@@ -22,62 +24,59 @@ app.get('/', (req, res) => {
   res.json({ message: 'Harry Potter API' })
 })
 
-app.use('/characters', characterController)
+app.use('/characters', getAllCharacter)
 
-app.use('/characters/species', getCharacterSpecies)
+app.use('/characters', putCharacterById)
 
-app.use('/characters/house', getCharacterHouse)
+app.use('/characters', postCharacter)
 
-app.get('/characters/:id', async (req, res) => {
-  const { id } = req.params
-  const query = 'SELECT * FROM hp_character WHERE hp_character.id=?'
-  const [rows] = await (await connection).query(query, [id])
+app.use('/characters', getCharacterById)
 
-  if (!rows[0]) {
-    return res.json({ msg: "Couldn't find that character" })
-  }
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.json(rows[0])
-  console.log(rows[0])
-})
+app.use('/characters', putCharacterById)
 
-app.post('/characters/', async (req, res) => {
-  const data = { ...req.body }
+app.use('/species', getCharacterSpecies)
 
-  const query = `INSERT INTO hp_character SET ?`
-  try {
-    const [rows] = await connection.query(query, data)
+app.use('/house', getCharacterHouse)
 
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    // res.json(rows);
-    res.json(data)
-    console.log('Posted Data: ' + JSON.stringify(data))
-  } catch (error) {
-    console.log(error.message)
-  }
-  // const query = "INSERT INTO hp_character SET ?"
-})
+// app.post('/characters/', async (req, res) => {
+//   const data = { ...req.body }
 
-app.put('/characters/:id', async (req, res) => {
-  const data = { ...req.body }
+//   const query = `INSERT INTO hp_character SET ?`
+//   try {
+//     const [rows] = await (await connection()).query(query, data)
 
-  const query = 'UPDATE hp_character SET ? WHERE id = ' + req.params.id
+//     res.setHeader('Access-Control-Allow-Origin', '*')
+//     // res.json(rows);
+//     res.json(data)
+//     console.log('Posted Data: ' + JSON.stringify(data))
+//   } catch (error) {
+//     console.log(error.message)
+//   }
+//   // const query = "INSERT INTO hp_character SET ?"
+// })
 
-  const [rows] = await (await connection).query(query, data, req.params.id)
+// app.put('/characters/:id', async (req, res) => {
+//   const data = { ...req.body }
 
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.json(data)
-  // res.json(rows);
-  console.log('Updated ' + JSON.stringify(data))
-  console.log(rows)
-})
+//   const query = 'UPDATE hp_character SET ? WHERE id = ' + req.params.id
+
+//   const [rows] = await (await connection()).query(query, data, req.params.id)
+
+//   res.setHeader('Access-Control-Allow-Origin', '*')
+//   res.json(data)
+//   // res.json(rows);
+//   console.log('Updated ' + JSON.stringify(data))
+//   console.log(rows)
+// })
 
 app.delete('/characters/:id', async (req, res) => {
   const data = { ...req.body }
   const { id } = req.params
   var query = 'DELETE FROM hp_character WHERE id = ' + req.params.id
 
-  const [rows] = await (await connection).query(query, data, [id], req.params.id)
+  const [rows] = await (
+    await connection()
+  ).query(query, data, [id], req.params.id)
 
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.json('Deleted' + rows)
@@ -86,7 +85,7 @@ app.delete('/characters/:id', async (req, res) => {
 
 app.get('/wands', async (req, res) => {
   const query = 'SELECT * FROM wand'
-  const [rows] = await connection.query(query)
+  const [rows] = await connection().query(query)
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.send(rows)
 })
@@ -94,7 +93,7 @@ app.get('/wands', async (req, res) => {
 app.get('/wands/:id', async (req, res) => {
   const { id } = req.params
   const query = 'SELECT * FROM wand WHERE wand.id=?'
-  const [rows] = await (await connection).query(query, [id])
+  const [rows] = await (await connection()).query(query, [id])
 
   if (!rows[0]) {
     return res.json({ msg: "Couldn't find that character" })
