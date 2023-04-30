@@ -3,11 +3,12 @@ import dotenv from 'dotenv'
 import mysql from 'mysql2/promise'
 import cors from 'cors'
 import bodyParser from 'body-parser'
+import getConnection from './src/database/database.js'
+import characterController from './src/controller/characters/characterController.js'
 
 dotenv.config()
 
-const connection = await mysql.createConnection(process.env.DATABASE_URL)
-console.log('The Database is connected to ' + process.env.DATABASE_URL + '\n')
+const connection = getConnection()
 
 const app = express()
 app.use(cors())
@@ -19,37 +20,7 @@ app.get('/', (req, res) => {
   res.json({ message: 'Harry Potter API' })
 })
 
-let status = [{ success: 200 }, { failed: 400 }]
-let returnValue = {}
-
-app.get('/characters', async (req, res) => {
-  const itemsPerPage = 10
-  const page = parseInt(req.query.page) || 1 // use query parameter or default to 1
-  const offset = (page - 1) * itemsPerPage
-  const query = `SELECT * FROM hp_character LIMIT ${itemsPerPage} OFFSET ${offset}`
-
-  const [rows] = await connection.query(query)
-
-  const response = {
-    status: res.statusCode,
-    data: rows,
-    meta: {
-      pagination: {
-        page: page,
-        itemsPerPage: itemsPerPage,
-        links: {
-          next: `https://api-harry-potter-app.cyclic.app/characters?page=${
-            page + 1
-          }`
-        }
-      }
-    }
-  }
-
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.json(response)
-  // res.status(response.status).json(response)
-})
+app.use('/characters', characterController)
 
 app.get('/characters/:id', async (req, res) => {
   const { id } = req.params
@@ -129,7 +100,9 @@ app.get('/wands/:id', async (req, res) => {
 const port = 5001
 
 app.listen(port, () => {
-  console.log('App is Listening...and the server is up to port ' + port)
+  console.log(
+    'App is Listening...and the server is up to port http://localhost:' + port
+  )
 })
 
 // const listener = app.listen(process.env.PORT, function () {
