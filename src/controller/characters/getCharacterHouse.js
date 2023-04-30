@@ -1,12 +1,12 @@
 import { Router } from 'express'
 import getConnection from '../../database/database.js'
 
-const getCharacterSpecies = Router()
+const getCharacterHouse = Router()
 
 const connection = getConnection()
 
-getCharacterSpecies.get('/', async (req, res) => {
-  const query = `SELECT DISTINCT species FROM hp_character`
+getCharacterHouse.get('/', async (req, res) => {
+  const query = `SELECT DISTINCT house FROM hp_character`
 
   const [rows] = await (await connection).query(query)
 
@@ -19,4 +19,4 @@ getCharacterSpecies.get('/', async (req, res) => {
   res.json(response)
 })
 
-export default getCharacterSpecies
+export default getCharacterHouse

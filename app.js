@@ -6,6 +6,7 @@ import bodyParser from 'body-parser'
 import getConnection from './src/database/database.js'
 import characterController from './src/controller/characters/characterController.js'
 import getCharacterSpecies from './src/controller/characters/getCharacterSpecies.js'
+import getCharacterHouse from './src/controller/characters/getCharacterHouse.js'
 
 dotenv.config()
 
@@ -23,6 +24,7 @@ app.get('/', (req, res) => {
 
 app.use('/characters', characterController)
 app.use('/characters/species', getCharacterSpecies)
+app.use('/characters/house', getCharacterHouse)
 
 app.get('/characters/:id', async (req, res) => {
   const { id } = req.params
