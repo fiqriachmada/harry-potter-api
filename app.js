@@ -5,6 +5,7 @@ import cors from 'cors'
 import bodyParser from 'body-parser'
 import getConnection from './src/database/database.js'
 import characterController from './src/controller/characters/characterController.js'
+import getCharacterSpecies from './src/controller/characters/getCharacterSpecies.js'
 
 dotenv.config()
 
@@ -21,11 +22,12 @@ app.get('/', (req, res) => {
 })
 
 app.use('/characters', characterController)
+app.use('/characters/species', getCharacterSpecies)
 
 app.get('/characters/:id', async (req, res) => {
   const { id } = req.params
   const query = 'SELECT * FROM hp_character WHERE hp_character.id=?'
-  const [rows] = await connection.query(query, [id])
+  const [rows] = await (await connection).query(query, [id])
 
   if (!rows[0]) {
     return res.json({ msg: "Couldn't find that character" })
@@ -57,7 +59,7 @@ app.put('/characters/:id', async (req, res) => {
 
   const query = 'UPDATE hp_character SET ? WHERE id = ' + req.params.id
 
-  const [rows] = await connection.query(query, data, req.params.id)
+  const [rows] = await (await connection).query(query, data, req.params.id)
 
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.json(data)
@@ -71,7 +73,7 @@ app.delete('/characters/:id', async (req, res) => {
   const { id } = req.params
   var query = 'DELETE FROM hp_character WHERE id = ' + req.params.id
 
-  const [rows] = await connection.query(query, data, [id], req.params.id)
+  const [rows] = await (await connection).query(query, data, [id], req.params.id)
 
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.json('Deleted' + rows)
@@ -88,7 +90,7 @@ app.get('/wands', async (req, res) => {
 app.get('/wands/:id', async (req, res) => {
   const { id } = req.params
   const query = 'SELECT * FROM wand WHERE wand.id=?'
-  const [rows] = await connection.query(query, [id])
+  const [rows] = await (await connection).query(query, [id])
 
   if (!rows[0]) {
     return res.json({ msg: "Couldn't find that character" })
