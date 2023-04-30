@@ -23,7 +23,9 @@ app.get('/', (req, res) => {
 })
 
 app.use('/characters', characterController)
+
 app.use('/characters/species', getCharacterSpecies)
+
 app.use('/characters/house', getCharacterHouse)
 
 app.get('/characters/:id', async (req, res) => {
