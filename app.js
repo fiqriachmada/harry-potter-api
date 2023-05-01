@@ -10,7 +10,8 @@ import getCharacterById from './src/controller/characters/getCharacterById.js'
 import getAllCharacter from './src/controller/characters/getAllCharacter.js'
 import putCharacterById from './src/controller/characters/putCharacterById.js'
 import postCharacter from './src/controller/characters/postCharacter.js'
-
+import postUser from './src/controller/users/postUser.js'
+import loginUser from './src/controller/users/loginUser.js'
 
 dotenv.config()
 
@@ -38,36 +39,9 @@ app.use('/species', getCharacterSpecies)
 
 app.use('/house', getCharacterHouse)
 
-// app.post('/characters/', async (req, res) => {
-//   const data = { ...req.body }
+app.use('/users', postUser)
 
-//   const query = `INSERT INTO hp_character SET ?`
-//   try {
-//     const [rows] = await (await connection()).query(query, data)
-
-//     res.setHeader('Access-Control-Allow-Origin', '*')
-//     // res.json(rows);
-//     res.json(data)
-//     console.log('Posted Data: ' + JSON.stringify(data))
-//   } catch (error) {
-//     console.log(error.message)
-//   }
-//   // const query = "INSERT INTO hp_character SET ?"
-// })
-
-// app.put('/characters/:id', async (req, res) => {
-//   const data = { ...req.body }
-
-//   const query = 'UPDATE hp_character SET ? WHERE id = ' + req.params.id
-
-//   const [rows] = await (await connection()).query(query, data, req.params.id)
-
-//   res.setHeader('Access-Control-Allow-Origin', '*')
-//   res.json(data)
-//   // res.json(rows);
-//   console.log('Updated ' + JSON.stringify(data))
-//   console.log(rows)
-// })
+app.use('/users', loginUser)
 
 app.delete('/characters/:id', async (req, res) => {
   const data = { ...req.body }
