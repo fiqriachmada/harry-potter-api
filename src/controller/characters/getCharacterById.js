@@ -11,7 +11,7 @@ getCharacterById.get('/:id', async (req, res) => {
 
   const response = {
     status: res.statusCode,
-    data: rows
+    data: rows[0]
   }
 
   res.setHeader('Access-Control-Allow-Origin', '*')
