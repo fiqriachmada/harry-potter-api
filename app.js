@@ -12,6 +12,7 @@ import putCharacterById from './src/controller/characters/putCharacterById.js'
 import postCharacter from './src/controller/characters/postCharacter.js'
 import postUser from './src/controller/users/postUser.js'
 import loginUser from './src/controller/users/loginUser.js'
+import getProfileUser from './src/controller/users/getProfileUser.js'
 
 dotenv.config()
 
@@ -42,6 +43,8 @@ app.use('/house', getCharacterHouse)
 app.use('/users', postUser)
 
 app.use('/users', loginUser)
+
+app.use('/users', getProfileUser)
 
 app.delete('/characters/:id', async (req, res) => {
   const data = { ...req.body }

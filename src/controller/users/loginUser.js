@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { connection } from '../../apis/database.js'
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 
 const loginUser = Router()
 
@@ -40,9 +41,15 @@ loginUser.post('/login', async (req, res) => {
         .json({ message: 'Invalid username or email or password' })
     }
 
+    const token = jwt.sign(
+      { id: user.id, username: user.username, email: user.email },
+      'secret-key',
+      { expiresIn: '1h' }
+    )
+
     const response = {
       status: res.statusCode,
-      data: { id: user.id, username: user.username, email: user.email }
+      data: { id: user.id, username: user.username, email: user.email, token }
     }
 
     res.setHeader('Access-Control-Allow-Origin', '*')
