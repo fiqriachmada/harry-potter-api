@@ -6,6 +6,8 @@ import path from 'path'
 
 const postCharacter = Router()
 
+
+
 postCharacter.post('/', async (req, res) => {
   const data = { ...req.body }
 

@@ -1,57 +1,44 @@
-// import { Router } from 'express'
-// import mysql from 'mysql2/promise'
-// import { connection } from '../../apis/database.js'
+import { Router } from 'express';
+import { connection } from '../../apis/database.js';
+import imageKitApi from '../../apis/imageKit.js';
+import multer from 'multer';
 
-// const putCharacterById = Router()
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
-// putCharacterById.put('/:id', async (req, res) => {
-//   // const response = {
-//   //   status: res.statusCode,
-//   //   data: rows,
-//   //   meta: {
-//   //     pagination: {
-//   //       page: page,
-//   //       itemsPerPage: itemsPerPage,
-//   //       links: {
-//   //         next: `https://api-harry-potter-app.cyclic.app/characters?page=${
-//   //           page + 1
-//   //         }`
-//   //       }
-//   //     }
-//   //   }
-//   // }
-//   const data = { ...req.body }
+const putCharacterById = Router();
 
-//   const query = 'UPDATE hp_character SET ? WHERE id = ' + req.params.id
+putCharacterById.put('/:id', upload.single('image'), async (req, res) => {
+  try {
+    const fileData = req.file;
+    const uploadResponse = await imageKitApi.upload({
+      file: fileData.buffer,
+      fileName: req.file.originalname,
+      folder: 'character-harry-potter-api',
+      extensions: [
+        {
+          name: 'google-auto-tagging',
+          maxTags: 5,
+          minConfidence: 95,
+        },
+      ],
+    });
 
-//   const [rows] = await (await connection()).query(query, data, req.params.id)
+    const data = { ...req.body, image: uploadResponse.filePath };
 
-//   res.setHeader('Access-Control-Allow-Origin', '*')
-//   res.json(data)
-//   res.json(rows);
-//   console.log('Updated on ' + JSON.stringify(data))
-//   console.log(rows)
+    const query = 'UPDATE hp_character SET ? WHERE id = ?';
+    const [result] = await (
+      await connection()
+    ).query(query, [data, req.params.id]);
 
-//   // res.setHeader('Access-Control-Allow-Origin', '*')
-//   // res.json(response)
-// })
+    const response = { status: res.statusCode, data: data, result };
 
-// export default putCharacterById
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.json(response);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
-import { Router } from 'express'
-import mysql from 'mysql2/promise'
-import { connection } from '../../apis/database.js'
-
-const putCharacterById = Router()
-
-putCharacterById.put('/:id', async (req, res) => {
-  const data = { ...req.body }
-  const query = 'UPDATE hp_character SET ? WHERE id = ' + req.params.id
-  const [rows] = await (await connection()).query(query, data, req.params.id)
-
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  const response = { status: res.statusCode, data: data, rows }
-  res.json(response)
-})
-
-export default putCharacterById
+export default putCharacterById;
