@@ -10,6 +10,14 @@ const putCharacterById = Router();
 
 putCharacterById.put('/:id', upload.single('image'), async (req, res) => {
   try {
+    const updateData = {
+      filePath: req.body.image, // the existing file path
+      file: fileData.buffer, // the new file buffer
+      fileName: req.file.originalname, // the new file name
+      folder: 'harry-potter-api', // the folder where the new file will be uploaded
+      tags: ['harry-potter', 'character'], // optional tags to be associated with the new file
+      useUniqueFileName: true, // optional flag to use a unique file name
+    };
     const fileData = req.file;
     const uploadResponse = await imageKitApi.upload({
       file: fileData.buffer,
@@ -23,6 +31,8 @@ putCharacterById.put('/:id', upload.single('image'), async (req, res) => {
         },
       ],
     });
+
+    const updateResponse = await imageKitApi.updateFileDetails() 
 
     const data = { ...req.body, image: uploadResponse.filePath };
 
