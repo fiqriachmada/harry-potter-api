@@ -8,16 +8,8 @@ const upload = multer({ storage: storage });
 
 const putCharacterById = Router();
 
-putCharacterById.put('/:id', upload.single('image'), async (req, res) => {
+putCharacterById.put('/:id', upload.single('image_url'), async (req, res) => {
   try {
-    const updateData = {
-      filePath: req.body.image, // the existing file path
-      file: fileData.buffer, // the new file buffer
-      fileName: req.file.originalname, // the new file name
-      folder: 'harry-potter-api', // the folder where the new file will be uploaded
-      tags: ['harry-potter', 'character'], // optional tags to be associated with the new file
-      useUniqueFileName: true, // optional flag to use a unique file name
-    };
     const fileData = req.file;
     const uploadResponse = await imageKitApi.upload({
       file: fileData.buffer,
@@ -32,16 +24,51 @@ putCharacterById.put('/:id', upload.single('image'), async (req, res) => {
       ],
     });
 
-    const updateResponse = await imageKitApi.updateFileDetails() 
+    const data = {
+      ...req.body,
+      image_url: uploadResponse.filePath,
+      image_id: uploadResponse.fileId,
+    };
 
-    const data = { ...req.body, image: uploadResponse.filePath };
+    const updateCharacterQuery = `UPDATE hp_character
+      SET full_name = ?, species = ?, gender = ?, house = ?, date_of_birth = ?, year_of_birth = ?, is_wizard = ?, ancestry = ?, eye_colour = ?, hair_colour = ?, wand_id = ?, patronus = ?, is_hogwarts_student = ?, is_hogwarts_staff = ?, is_alive = ?
+      WHERE id = ?`;
 
-    const query = 'UPDATE hp_character SET ? WHERE id = ?';
-    const [result] = await (
+    const updateImageQuery =
+      'UPDATE hp_character_image SET image_url = ?, image_id = ? WHERE character_id = ?';
+
+    const [characterResult] = await (
       await connection()
-    ).query(query, [data, req.params.id]);
+    ).query(updateCharacterQuery, [
+      ...data,
+      req.body.full_name,
+      req.body.species,
+      req.body.gender,
+      req.body.house,
+      req.body.date_of_birth,
+      req.body.year_of_birth,
+      req.body.is_wizard,
+      req.body.ancestry,
+      req.body.eye_colour,
+      req.body.hair_colour,
+      req.body.wand_id,
+      req.body.patronus,
+      req.body.is_hogwarts_student,
+      req.body.is_hogwarts_staff,
+      req.body.is_alive,
+      req.params.id,
+    ]);
 
-    const response = { status: res.statusCode, data: data, result };
+    const [imageResult] = await (
+      await connection()
+    ).query(updateImageQuery, [data.image_url, data.image_id, req.params.id]);
+
+    const response = {
+      status: res.statusCode,
+      data,
+      characterResult,
+      imageResult,
+    };
 
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.json(response);
