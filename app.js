@@ -13,6 +13,7 @@ import postCharacter from './src/controller/characters/postCharacter.js'
 import postUser from './src/controller/users/postUser.js'
 import loginUser from './src/controller/users/loginUser.js'
 import getProfileUser from './src/controller/users/getProfileUser.js'
+import uploadImage from './src/controller/upload/uploadImage.js'
 
 dotenv.config()
 
@@ -45,6 +46,8 @@ app.use('/users', postUser)
 app.use('/users', loginUser)
 
 app.use('/users', getProfileUser)
+
+app.use('/', uploadImage)
 
 app.delete('/characters/:id', async (req, res) => {
   const data = { ...req.body }
