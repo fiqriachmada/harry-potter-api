@@ -6,8 +6,28 @@ import imageKitApi from '../../apis/imageKit.js';
 
 import { v4 as uuidv4 } from 'uuid';
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+// const storage = multer.memoryStorage();
+// const upload = multer({ storage: storage });
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  },
+});
+
+const upload = multer({
+  storage: storage,
+  fileFilter: function (req, file, cb) {
+    if (file.fieldname === 'image') {
+      cb(null, true);
+    } else {
+      cb(new Error('Unexpected field'), false);
+    }
+  },
+});
 
 const postCharacter = Router();
 
