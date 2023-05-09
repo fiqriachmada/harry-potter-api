@@ -10,19 +10,17 @@ getAllCharacter.get('/', async (req, res) => {
     const page = parseInt(req.query.page) || 1; // use query parameter or default to 1
     const offset = (page - 1) * itemsPerPage;
 
+    const timeZoneOffset = '+07:00'; // change this to your desired timezone offset
+
     const countQuery = 'SELECT COUNT(*) as count FROM hp_character';
-    // const dataQuery = `SELECT * FROM hp_character ORDER BY id DESC LIMIT ${itemsPerPage} OFFSET ${offset}`
     const dataQuery = `
-  SELECT hp_character.id, hp_character.full_name, hp_character.species, hp_character.gender, hp_character.house,
-         hp_character.date_of_birth, hp_character.year_of_birth, hp_character.is_wizard, hp_character.ancestry,
-         hp_character.eye_colour, hp_character.hair_colour, hp_character.wand_id, hp_character.patronus,
-         hp_character.is_hogwarts_student, hp_character.is_hogwarts_staff, hp_character.is_alive, hp_character.image,
-         hp_character_image.image_url
-  FROM hp_character
-  LEFT JOIN hp_character_image ON hp_character.image_id = hp_character_image.image_id
-  ORDER BY hp_character.id DESC
-  LIMIT ${itemsPerPage} OFFSET ${offset}
-`;
+    SELECT hp_character.*, hp_character_image.image_url, 
+    DATE_FORMAT(CONVERT_TZ(hp_character.created_at, '+00:00', '${timeZoneOffset}'), '%Y-%m-%d %H:%i:%s') as created_at,
+    DATE_FORMAT(CONVERT_TZ(hp_character.updated_at, '+00:00', '${timeZoneOffset}'), '%Y-%m-%d %H:%i:%s') as updated_at
+    FROM hp_character
+    LEFT JOIN hp_character_image ON hp_character.image_id = hp_character_image.id
+    ORDER BY hp_character.updated_at DESC
+    LIMIT ${itemsPerPage} OFFSET ${offset}`;
 
     const [countResult] = await (await connection()).query(countQuery);
     const [dataResult] = await (await connection()).query(dataQuery);

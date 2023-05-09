@@ -4,6 +4,8 @@ import multer from 'multer';
 import path from 'path';
 import imageKitApi from '../../apis/imageKit.js';
 
+import { v4 as uuidv4 } from 'uuid';
+
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -25,8 +27,11 @@ postCharacter.post('/', upload.single('image_url'), async (req, res) => {
       ],
     });
 
+    const idCharacter = uuidv4();
+
     const characterData = {
       ...req.body,
+      id: idCharacter,
       image_id: uploadResponse.fileId,
     };
 
@@ -35,23 +40,24 @@ postCharacter.post('/', upload.single('image_url'), async (req, res) => {
     const [characterResult] = await (
       await connection()
     ).query(characterQuery, characterData);
-    const characterId = characterResult.insertId;
-    console.log('characterId', characterId);
+    const characterId = characterData.id;
 
-    const imageData = [
-      characterId,
-      uploadResponse.filePath,
-      uploadResponse.fileId,
-    ];
-    const imageQuery = `INSERT INTO hp_character_image (character_id, image_url, image_id) VALUES (?, ?, ?)`;
-    await (await connection()).query(imageQuery, imageData);
+    const idImage = uuidv4();
 
-    console.log('uploadResponse.fileId', uploadResponse.fileId);
+    const imageData = {
+      id: uploadResponse.fileId,
+      character_id: characterId,
+      image_url: uploadResponse.filePath,
+    };
+
+    const imageQuery = `INSERT INTO hp_character_image SET ?`;
+    const [imageResult] = await (
+      await connection()
+    ).query(imageQuery, imageData);
 
     const response = {
       status: res.statusCode,
-      data: characterData,
-      uploadResponse,
+      data: { ...characterData, ...imageData },
     };
 
     res.setHeader('Access-Control-Allow-Origin', '*');
