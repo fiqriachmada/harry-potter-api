@@ -1,28 +1,45 @@
 import multer from 'multer';
-import fs from 'fs';
 import { Router } from 'express';
+import { connection } from '../../apis/database.js';
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = './uploads'; // create a new directory called "uploads"
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir);
-    }
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname); // set the filename to the original name of the file
-  },
-});
+const storage = multer.memoryStorage();
 
 const upload = multer({ storage: storage });
 
 const uploadImage = Router();
 
-// define a route for handling file uploads
-uploadImage.post('/upload', upload.single('filepond'), (req, res) => {
-  console.log(req.file); // log the file data for debugging purposes
-  res.send('File uploaded successfully!');
+uploadImage.post('/upload', upload.single('filepond'), async (req, res) => {
+  try {
+    const data = {
+      ...req.body,
+
+      fileData: req.file.buffer,
+      name: req.file.originalname,
+      mimetype: req.file.mimetype,
+
+      path: '/path/to/file',
+
+      size: req.file.size,
+    };
+
+    const query = `INSERT INTO files SET ?`;
+
+    const [results] = await (await connection()).query(query, data);
+
+    const response = {
+      status: res.statusCode,
+      data,
+    };
+
+    console.log(`File uploaded to MySQL with ID ${results.insertId}`);
+
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.json(response);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
 });
+
 
 export default uploadImage;
