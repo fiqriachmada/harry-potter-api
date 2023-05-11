@@ -1,3 +1,13 @@
+import { Router } from 'express';
+import { connection } from '../../apis/database.js';
+import multer from 'multer';
+import imageKitApi from '../../apis/imageKitApi.js';
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+const putCharacterById = Router();
+
 putCharacterById.put('/:id', upload.single('image_url'), async (req, res) => {
   const { id } = req.params;
 
@@ -16,10 +26,9 @@ putCharacterById.put('/:id', upload.single('image_url'), async (req, res) => {
 
     console.log('imageId', imageId);
 
-    // Delete the image from ImageKit using its URL
-
     let imageData;
     if (req.file) {
+      // Delete the image from ImageKit using its URL
       if (imageId) {
         await imageKitApi.deleteFile(imageId, function (error, result) {
           if (error) console.log(error);
@@ -47,10 +56,6 @@ putCharacterById.put('/:id', upload.single('image_url'), async (req, res) => {
       };
     }
 
-    const characterData = {
-      ...req.body,
-    };
-
     if (imageData) {
       characterData.image_id = imageData.id;
 
@@ -59,6 +64,10 @@ putCharacterById.put('/:id', upload.single('image_url'), async (req, res) => {
 
       await (await connection()).query(updateImageQuery, [imageData, id]);
     }
+
+    const characterData = {
+      ...req.body,
+    };
 
     const updateCharacterQuery = `UPDATE hp_character SET ? WHERE id = ?`;
 
@@ -80,3 +89,5 @@ putCharacterById.put('/:id', upload.single('image_url'), async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
+export default putCharacterById;
