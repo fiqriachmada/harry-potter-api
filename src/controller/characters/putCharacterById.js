@@ -9,7 +9,31 @@ const upload = multer({ storage: storage });
 const putCharacterById = Router();
 
 putCharacterById.put('/:id', upload.single('image_url'), async (req, res) => {
+  const { id } = req.params;
+
   try {
+    // Get the character record and the associated image URL
+    const selectQuery = `SELECT hp_character.*, hp_character_image.image_url, hp_character_image.id FROM hp_character LEFT JOIN hp_character_image ON hp_character.image_id = hp_character_image.id WHERE hp_character.id=?`;
+    const [selectRows] = await (await connection()).query(selectQuery, [id]);
+
+    if (selectRows.length === 0) {
+      // If the character record doesn't exist, return an error response
+      res.status(404).json({ error: 'Character not found' });
+      return;
+    }
+
+    const imageId = selectRows[0].id;
+
+    console.log('imageId', imageId);
+
+    // Delete the image from ImageKit using its URL
+    if (imageId) {
+      await imageKitApi.deleteFile(imageId, function (error, result) {
+        if (error) console.log(error);
+        else console.log(result);
+      });
+    }
+
     const fileData = req.file;
     const uploadResponse = await imageKitApi.upload({
       file: fileData.buffer,
@@ -24,48 +48,33 @@ putCharacterById.put('/:id', upload.single('image_url'), async (req, res) => {
       ],
     });
 
-    const data = {
+    const characterData = {
       ...req.body,
-      image_url: uploadResponse.filePath,
       image_id: uploadResponse.fileId,
     };
 
-    const updateCharacterQuery = `UPDATE hp_character
-      SET full_name = ?, species = ?, gender = ?, house = ?, date_of_birth = ?, year_of_birth = ?, is_wizard = ?, ancestry = ?, eye_colour = ?, hair_colour = ?, wand_id = ?, patronus = ?, is_hogwarts_student = ?, is_hogwarts_staff = ?, is_alive = ?
-      WHERE id = ?`;
-
-    const updateImageQuery =
-      'UPDATE hp_character_image SET image_url = ?, image_id = ? WHERE character_id = ?';
+    const updateCharacterQuery = `UPDATE hp_character SET ? WHERE id = ?`;
 
     const [characterResult] = await (
       await connection()
-    ).query(updateCharacterQuery, [
-      ...data,
-      req.body.full_name,
-      req.body.species,
-      req.body.gender,
-      req.body.house,
-      req.body.date_of_birth,
-      req.body.year_of_birth,
-      req.body.is_wizard,
-      req.body.ancestry,
-      req.body.eye_colour,
-      req.body.hair_colour,
-      req.body.wand_id,
-      req.body.patronus,
-      req.body.is_hogwarts_student,
-      req.body.is_hogwarts_staff,
-      req.body.is_alive,
-      req.params.id,
-    ]);
+    ).query(updateCharacterQuery, [characterData, id]);
+
+    const imageData = {
+      id: uploadResponse.fileId,
+      image_url: uploadResponse.filePath,
+    };
+
+    const updateImageQuery =
+      'UPDATE hp_character_image SET ? WHERE character_id = ?';
 
     const [imageResult] = await (
       await connection()
-    ).query(updateImageQuery, [data.image_url, data.image_id, req.params.id]);
+    ).query(updateImageQuery, [imageData, id]);
 
     const response = {
       status: res.statusCode,
-      data,
+      characterData,
+      imageData,
       characterResult,
       imageResult,
     };

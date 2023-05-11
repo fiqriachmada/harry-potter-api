@@ -44,8 +44,6 @@ postCharacter.post(
       ).query(characterQuery, characterData);
       const characterId = characterData.id;
 
-      const idImage = uuidv4();
-
       const imageData = {
         id: uploadResponse.fileId,
         character_id: characterId,
