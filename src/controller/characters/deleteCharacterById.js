@@ -33,8 +33,8 @@ deleteCharacterById.delete('/:id', async (req, res) => {
     ).query(deleteCharacterQuery, [id]);
 
     if (imageId) {
-      const deleteImageQuery = `DELETE FROM hp_character_image WHERE id = ?`;
-      await (await connection()).query(deleteImageQuery, [imageId]);
+      const deleteImageQuery = `DELETE FROM hp_character_image WHERE id = ? OR character_id = ?`;
+      await (await connection()).query(deleteImageQuery, [imageId, id]);
     }
 
     const response = {
