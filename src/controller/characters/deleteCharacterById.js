@@ -20,11 +20,11 @@ deleteCharacterById.delete('/:id', async (req, res) => {
 
     const imageId = selectRows[0].id;
 
-    // Delete the image from ImageKit using its URL
-    if (imageId) {
-      // const imageId = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
-      await imageKitApi.deleteFile(imageId);
-    }
+    // // Delete the image from ImageKit using its URL
+    // if (imageId) {
+    //   // const imageId = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+    //   await imageKitApi.deleteFile(imageId);
+    // }
 
     // Delete the character record and the associated image record
     const deleteCharacterQuery = `DELETE FROM hp_character WHERE id = ?`;
