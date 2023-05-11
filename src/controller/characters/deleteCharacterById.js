@@ -39,7 +39,7 @@ deleteCharacterById.delete('/:id', async (req, res) => {
 
     const response = {
       status: res.statusCode,
-      data: selectRows,
+      data: selectRows[0],
       message: `${deleteCharacterResult.affectedRows} character(s) deleted`,
     };
 
