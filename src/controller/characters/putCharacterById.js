@@ -1,13 +1,3 @@
-import { Router } from 'express';
-import { connection } from '../../apis/database.js';
-import multer from 'multer';
-import imageKitApi from '../../apis/imageKitApi.js';
-
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
-
-const putCharacterById = Router();
-
 putCharacterById.put('/:id', upload.single('image_url'), async (req, res) => {
   const { id } = req.params;
 
@@ -27,31 +17,48 @@ putCharacterById.put('/:id', upload.single('image_url'), async (req, res) => {
     console.log('imageId', imageId);
 
     // Delete the image from ImageKit using its URL
-    if (imageId) {
-      await imageKitApi.deleteFile(imageId, function (error, result) {
-        if (error) console.log(error);
-        else console.log(result);
-      });
-    }
 
-    const fileData = req.file;
-    const uploadResponse = await imageKitApi.upload({
-      file: fileData.buffer,
-      fileName: req.file.originalname,
-      folder: 'character-harry-potter-api',
-      extensions: [
-        {
-          name: 'google-auto-tagging',
-          maxTags: 5,
-          minConfidence: 95,
-        },
-      ],
-    });
+    let imageData;
+    if (req.file) {
+      if (imageId) {
+        await imageKitApi.deleteFile(imageId, function (error, result) {
+          if (error) console.log(error);
+          else console.log(result);
+        });
+      }
+
+      const fileData = req.file;
+      const uploadResponse = await imageKitApi.upload({
+        file: fileData.buffer,
+        fileName: req.file.originalname,
+        folder: 'character-harry-potter-api',
+        extensions: [
+          {
+            name: 'google-auto-tagging',
+            maxTags: 5,
+            minConfidence: 95,
+          },
+        ],
+      });
+
+      imageData = {
+        id: uploadResponse.fileId,
+        image_url: uploadResponse.filePath,
+      };
+    }
 
     const characterData = {
       ...req.body,
-      image_id: uploadResponse.fileId,
     };
+
+    if (imageData) {
+      characterData.image_id = imageData.id;
+
+      const updateImageQuery =
+        'UPDATE hp_character_image SET ? WHERE character_id = ?';
+
+      await (await connection()).query(updateImageQuery, [imageData, id]);
+    }
 
     const updateCharacterQuery = `UPDATE hp_character SET ? WHERE id = ?`;
 
@@ -59,24 +66,11 @@ putCharacterById.put('/:id', upload.single('image_url'), async (req, res) => {
       await connection()
     ).query(updateCharacterQuery, [characterData, id]);
 
-    const imageData = {
-      id: uploadResponse.fileId,
-      image_url: uploadResponse.filePath,
-    };
-
-    const updateImageQuery =
-      'UPDATE hp_character_image SET ? WHERE character_id = ?';
-
-    const [imageResult] = await (
-      await connection()
-    ).query(updateImageQuery, [imageData, id]);
-
     const response = {
       status: res.statusCode,
       characterData,
       imageData,
       characterResult,
-      imageResult,
     };
 
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -86,5 +80,3 @@ putCharacterById.put('/:id', upload.single('image_url'), async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
-export default putCharacterById;
