@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { connection } from '../../apis/database.js';
-import imageKitApi from '../../apis/imageKit.js';
 import multer from 'multer';
+import imageKitApi from '../../apis/imageKitApi.js';
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
