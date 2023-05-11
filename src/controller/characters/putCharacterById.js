@@ -56,6 +56,10 @@ putCharacterById.put('/:id', upload.single('image_url'), async (req, res) => {
       };
     }
 
+    const characterData = {
+      ...req.body,
+    };
+
     if (imageData) {
       characterData.image_id = imageData.id;
 
@@ -64,10 +68,6 @@ putCharacterById.put('/:id', upload.single('image_url'), async (req, res) => {
 
       await (await connection()).query(updateImageQuery, [imageData, id]);
     }
-
-    const characterData = {
-      ...req.body,
-    };
 
     const updateCharacterQuery = `UPDATE hp_character SET ? WHERE id = ?`;
 
