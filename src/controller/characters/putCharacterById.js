@@ -24,9 +24,12 @@ putCharacterById.put('/:id', upload.single('image_url'), async (req, res) => {
 
     const imageId = selectRows[0].id;
 
-    console.log('imageId', imageId);
+    const characterData = {
+      ...req.body,
+    };
 
     let imageData;
+
     if (req.file) {
       // Delete the image from ImageKit using its URL
       if (imageId) {
@@ -54,19 +57,15 @@ putCharacterById.put('/:id', upload.single('image_url'), async (req, res) => {
         id: uploadResponse.fileId,
         image_url: uploadResponse.filePath,
       };
-    }
+      
+      if (imageData) {
+        characterData.image_id = imageData.id;
 
-    const characterData = {
-      ...req.body,
-    };
+        const updateImageQuery =
+          'UPDATE hp_character_image SET ? WHERE character_id = ?';
 
-    if (imageData) {
-      characterData.image_id = imageData.id;
-
-      const updateImageQuery =
-        'UPDATE hp_character_image SET ? WHERE character_id = ?';
-
-      await (await connection()).query(updateImageQuery, [imageData, id]);
+        await (await connection()).query(updateImageQuery, [imageData, id]);
+      }
     }
 
     const updateCharacterQuery = `UPDATE hp_character SET ? WHERE id = ?`;
