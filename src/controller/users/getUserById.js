@@ -9,7 +9,7 @@ getUserById.get('/:id', async (req, res) => {
   const timeZoneOffset = '+07:00' // change this to your desired timezone offset
   try {
     // hp_character.*, hp_character_image.image_url,
-    const query = `SELECT id, username,
+    const query = `SELECT id, username, email
     DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', '${timeZoneOffset}'), '%Y-%m-%d %H:%i:%s') as created_at,
     DATE_FORMAT(CONVERT_TZ(updated_at, '+00:00', '${timeZoneOffset}'), '%Y-%m-%d %H:%i:%s') as updated_at
     FROM users WHERE users.id= ?
