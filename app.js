@@ -16,7 +16,9 @@ import loginUser from './src/controller/users/loginUser.js'
 import uploadImage from './src/controller/upload/uploadImage.js'
 import deleteCharacterById from './src/controller/characters/deleteCharacterById.js'
 import getAllUser from './src/controller/users/getAllUser.js'
-import getUserById from './src/controller/users/getUserByid.js'
+import getUserById from './src/controller/users/getUserById.js'
+
+
 
 dotenv.config()
 
