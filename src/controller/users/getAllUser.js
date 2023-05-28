@@ -64,9 +64,9 @@ import mysql from 'mysql2/promise'
 import { connection } from '../../apis/database.js'
 import { authenticateToken } from '../../apis/authenticateToken.js'
 
-const getProfileUser = Router()
+const getAllUser = Router()
 
-getProfileUser.get('/', authenticateToken, async (req, res) => {
+getAllUser.get('/', authenticateToken, async (req, res) => {
   try {
     const itemsPerPage = 10
     const page = parseInt(req.query.page) || 1 // use query parameter or default to 1
@@ -76,7 +76,7 @@ getProfileUser.get('/', authenticateToken, async (req, res) => {
 
     const countQuery = 'SELECT COUNT(*) as count FROM users'
     const dataQuery = `
-    SELECT * FROM users
+    SELECT id, username, email, created_at, updated_at FROM users
     ORDER BY users.updated_at DESC
     LIMIT ${itemsPerPage} OFFSET ${offset}`
 
@@ -121,4 +121,4 @@ getProfileUser.get('/', authenticateToken, async (req, res) => {
   }
 })
 
-export default getProfileUser
+export default getAllUser
