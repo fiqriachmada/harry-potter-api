@@ -10,17 +10,14 @@ export function authenticateToken (req, res, next) {
   const token = authHeader && authHeader.split(' ')[1]
 
   if (!token) {
-    return res.status(401).json({ message: 'Token not found' })
+    return res.status(401).json({ message: 'User not found' })
   }
 
   jwt.verify(token, secretKey, (err, decoded) => {
-    console.log('token', token)
-    console.log('secretKey', secretKey)
-    console.log('decoded', decoded)
     if (err) {
-      return res.status(403).json({ message: 'Invalid token' })
+      return res.status(403).json({ message: 'Invalid User' })
     }
-    
+
     req.userId = decoded.id
     next()
   })
