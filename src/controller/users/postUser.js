@@ -11,12 +11,22 @@ const saltRounds = 10
 postUser.post('/', async (req, res) => {
   const { username, email, password } = req.body
 
-  const checkQuery = 'SELECT COUNT(*) as count FROM users WHERE username = ?'
-  const [checkRows] = await (await connection()).query(checkQuery, [username])
-  const usernameTaken = checkRows[0].count > 0
+  const checkQueryUsername =
+    'SELECT COUNT(*) as count FROM users WHERE username = ?'
+  const checkQueryEmail = 'SELECT COUNT(*) as count FROM users WHERE email = ?'
+  const [checkRowsUsername] = await (
+    await connection()
+  ).query(checkQueryUsername, [username])
+  const [checkRowsEmail] = await (await connection()).query(checkQueryEmail, [email])
+  console.log('checkRowsUsername', checkRowsUsername[0])
+  console.log('checkRowsEmail', checkRowsEmail[0])
+  const usernameTaken = checkRowsUsername[0].count > 0
+  const emailTaken = checkRowsEmail[0].count > 0
 
   if (usernameTaken) {
     return res.status(400).json({ message: 'Username already taken' })
+  } else if (emailTaken) {
+    return res.status(400).json({ message: 'Email already taken' })
   }
 
   const id = uuidv4()
@@ -48,7 +58,8 @@ postUser.post('/', async (req, res) => {
 
   const hashedPassword = await bcrypt.hash(password, saltRounds)
 
-  const query = 'INSERT INTO users (id, username, email, password) VALUES (?, ?, ?, ?)'
+  const query =
+    'INSERT INTO users (id, username, email, password) VALUES (?, ?, ?, ?)'
   const data = [id, username, email, hashedPassword]
 
   try {

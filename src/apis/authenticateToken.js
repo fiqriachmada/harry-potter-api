@@ -5,11 +5,6 @@ dotenv.config()
 
 const secretKey = process.env.SECRET_KEY
 
-export function generateToken (user) {
-  const jwtToken = jwt.sign({ id: user.id }, secretKey, { expiresIn: '1h' })
-  return jwtToken
-}
-
 export function authenticateToken (req, res, next) {
   const authHeader = req.headers['authorization']
   const token = authHeader && authHeader.split(' ')[1]
@@ -19,10 +14,13 @@ export function authenticateToken (req, res, next) {
   }
 
   jwt.verify(token, secretKey, (err, decoded) => {
+    console.log('token', token)
+    console.log('secretKey', secretKey)
+    console.log('decoded', decoded)
     if (err) {
       return res.status(403).json({ message: 'Invalid token' })
     }
-
+    
     req.userId = decoded.id
     next()
   })
