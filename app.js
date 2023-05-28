@@ -17,8 +17,7 @@ import uploadImage from './src/controller/upload/uploadImage.js'
 import deleteCharacterById from './src/controller/characters/deleteCharacterById.js'
 import getAllUser from './src/controller/users/getAllUser.js'
 import getUserById from './src/controller/users/getUserById.js'
-
-
+import putUserById from './src/controller/users/putUserById.js'
 
 dotenv.config()
 
@@ -58,6 +57,8 @@ app.use('/users', getAllUser)
 
 app.use('/users', getUserById)
 
+app.use('/users', putUserById)
+
 app.use('/', uploadImage)
 
 app.get('/wands', async (req, res) => {
@@ -86,4 +87,3 @@ app.listen(port, () => {
     'App is Listening...and the server is up to port http://localhost:' + port
   )
 })
-
