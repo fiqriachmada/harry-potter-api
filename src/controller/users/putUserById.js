@@ -40,7 +40,7 @@ putUserById.put('/:id', async (req, res) => {
 
     const response = {
       status: res.statusCode,
-      userData
+      data: userData
     }
 
     res.setHeader('Access-Control-Allow-Origin', '*')
