@@ -47,14 +47,19 @@ loginUser.post('/login', async (req, res) => {
       {
         id: user.id
       },
-      // username: user.username, email: user.email
+
       secretKey,
       { expiresIn: '1h' }
     )
 
     const response = {
       status: res.statusCode,
-      data: { id: user.id, username: user.username, email: user.email, token }
+      data: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        token: 'Bearer ' + token
+      }
     }
 
     res.setHeader('Access-Control-Allow-Origin', '*')

@@ -16,6 +16,7 @@ import loginUser from './src/controller/users/loginUser.js'
 import uploadImage from './src/controller/upload/uploadImage.js'
 import deleteCharacterById from './src/controller/characters/deleteCharacterById.js'
 import getAllUser from './src/controller/users/getAllUser.js'
+import getUserById from './src/controller/users/getUserByid.js'
 
 dotenv.config()
 
@@ -52,6 +53,8 @@ app.use('/users', postUser)
 app.use('/users', loginUser)
 
 app.use('/users', getAllUser)
+
+app.use('/users', getUserById)
 
 app.use('/', uploadImage)
 
