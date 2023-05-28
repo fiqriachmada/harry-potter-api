@@ -34,9 +34,7 @@ putUserById.put('/:id', async (req, res) => {
 
     const updateUserQuery = `UPDATE users SET ? WHERE id = ?`
 
-    const [characterResult] = await (
-      await connection()
-    ).query(updateUserQuery, [userData, id])
+    await (await connection()).query(updateUserQuery, [userData, id])
 
     const response = {
       status: res.statusCode,
