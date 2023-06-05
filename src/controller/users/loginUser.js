@@ -8,6 +8,8 @@ const loginUser = Router()
 loginUser.post('/login', async (req, res) => {
   const { username, email, password } = req.body
 
+  const secretKey = process.env.SECRET_KEY
+
   try {
     if ((!username && !email) || !password) {
       return res
@@ -42,14 +44,22 @@ loginUser.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user.id, username: user.username, email: user.email },
-      'secret-key',
+      {
+        id: user.id
+      },
+
+      secretKey,
       { expiresIn: '1h' }
     )
 
     const response = {
       status: res.statusCode,
-      data: { id: user.id, username: user.username, email: user.email, token }
+      data: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        token: 'Bearer ' + token
+      }
     }
 
     res.setHeader('Access-Control-Allow-Origin', '*')
